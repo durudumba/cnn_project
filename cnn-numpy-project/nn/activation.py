@@ -24,8 +24,8 @@ class Relu(AbstractActivation):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        output = None
-        pass
+        output = x
+        output[output < 0] = 0
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ###########################################################################
@@ -40,13 +40,15 @@ class Relu(AbstractActivation):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        local_grad = None
-        pass
+        local_grad = x
+        local_grad[local_grad < 0] = 0
+        local_grad[local_grad > 0] = 1
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ###########################################################################
         #                             END OF YOUR CODE                            #
         ###########################################################################
+
         return local_grad
 
 class Linear(AbstractActivation):

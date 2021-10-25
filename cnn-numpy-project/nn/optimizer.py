@@ -64,6 +64,9 @@ class AdamOptimizer():
         # TODO: Implement the Adam optimizer                                      #
         ###########################################################################
 
+        #before
+        #update_value = None
+
         update_value = None
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****

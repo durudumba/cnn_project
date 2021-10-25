@@ -22,21 +22,17 @@ def one_hot(x, size):
 
 if __name__ == '__main__':
 
-    ###########################################################################
-    # TODO: 네트워크 초기화  (필요에 따라 내용을 수정후 레포트 작성)
-    ###########################################################################
-
     # 심플 MLP 예제
     lr = 0.01
     layers = [
         Flatten((28, 28, 1)), # fully connected 전에 입력을 1차원으로 만들어주는 flatten() 삽입
-        FullyConnected((28*28, 100), activation=sigmoid, optimizer = SGDOptimizer(),
+        FullyConnected((28*28, 100), activation=relu, optimizer = SGDOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (28*28))),
-        FullyConnected((100, 50), activation=sigmoid, optimizer = SGDOptimizer(),
+        FullyConnected((100, 50), activation=relu, optimizer = SGDOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (100.))),
         FullyConnected((50, 10), activation=linear, optimizer = SGDOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (50.)))
-    ]
+     ]
 
     # # 심플 CNN 예제
     # lr = 0.001
@@ -99,10 +95,12 @@ if __name__ == '__main__':
     test_acc = accuracy(net, tx, ty)
     print('Accuracy over all test set %.2f' % test_acc)
 
+""" 
+    #show ploting
     plt.plot(range(total_iter), loss)
     plt.title('Test accuracy: %.2f' % test_acc)
     plt.ylabel('loss')
     plt.xlabel('iteration')
     plt.legend(['training loss'], loc='upper left')
     plt.show()
-
+"""
