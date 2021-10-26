@@ -41,7 +41,7 @@ if __name__ == '__main__':
     #                    weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (50.)))
     #  ]
 
-    # 심플 CNN 예제
+    # 심플 CNN 예제 iter=5000, acc=86.44
     # lr = 0.001
     # layers = [
     #     Conv((5, 5, 1, 16), strides=1, activation=relu, optimizer=AdamOptimizer(),
@@ -71,14 +71,15 @@ if __name__ == '__main__':
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))),
         Conv((3, 3, 16, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*26*26))),
-        POOL(strides = 2)
-        Conv((3, 3, 1, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+        POOL(pshape = 2),
+        Conv((3, 3, 32, 64), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (32*12*12))),
-        Conv((3, 3, 1, 64), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+        Conv((3, 3, 64, 128), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (64*10*10))),
-        POOL(strides = 2),
-        Flatten((5, 5, 128)),
-        FullyConnected((5*5*128, 256), activation=leaky_relu,
+        #50, 8, 8, 128
+        POOL(pshape = 2),
+        Flatten((4, 4, 128)),
+        FullyConnected((4*4*128, 256), activation=leaky_relu,
                        optimizer = AdamOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (5*5*128))),
         FullyConnected((256, 10), activation=linear,
