@@ -70,15 +70,17 @@ if __name__ == '__main__':
         Conv((3, 3, 1, 16), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))),
         #50 26 26 16
-        Conv((4, 4, 16, 32), strides=2, activation=leaky_relu, optimizer=AdamOptimizer(),
-             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*26*26))),
-        #50 12 12 32
+        POOL(pshape=2),
+        #50 13 13 16
+        Conv((4, 4, 16, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*13*13))),
+        #50 10 10 32
         POOL(pshape = 2),
-        #50 6 6 32
-        Flatten((6, 6, 32)),
-        FullyConnected((6*6*32, 256), activation=leaky_relu,
+        #50 5 5 32
+        Flatten((5, 5, 32)),
+        FullyConnected((5*5*32, 256), activation=leaky_relu,
                        optimizer = AdamOptimizer(),
-                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (6*6*32))),
+                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (5*5*32))),
         FullyConnected((256, 10), activation=linear,
                        optimizer = AdamOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (256.)))
@@ -103,9 +105,8 @@ if __name__ == '__main__':
     loss = []
     total_iter = 5000
     batch_size = 50
-    import time
+
     for iter in range(total_iter):
-        start = time.time()
         shuffled_index = np.random.permutation(train_data_X.shape[0])
         batch_train_X = train_data_X[shuffled_index[:batch_size]]
         batch_train_Y = train_data_Y[shuffled_index[:batch_size]]
@@ -117,8 +118,8 @@ if __name__ == '__main__':
         #     print('Calculate accuracy over all test set (시간 소요)')
         #     print('Accuracy over all test set %f' % accuracy(net, tx, ty))
         # el
-        if iter % 10 == 0:
-            print('Iteration: %d, loss : %f' % (iter, loss[-1]))
+    if iter % 10 == 0:
+        print('Iteration: %d, loss : %f' % (iter, loss[-1]))
 
     ###########################################################################
     # 마지막 결과 출력
