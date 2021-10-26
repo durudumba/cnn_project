@@ -32,8 +32,8 @@ class Conv(AbstractLayer):
           H' = 1 + (H - HH) / stride
           W' = 1 + (W - WW) / stride
         """
-        s = int((inputs.shape[1] - self.fshape[0]) / self.strides + 1)
-        feature_map = np.zeros((inputs.shape[0], s, s, self.fshape[-1]))
+        s = int((inputs.shape[1] - self.fshape[0]) / self.strides + 1) #output size
+        feature_map = np.zeros((inputs.shape[0], s, s, self.fshape[-1])) #output feature map
         for j in range(s):
             for i in range(s):
                 feature_map[:, j, i, :] = np.sum(inputs[:, j * self.strides:j * self.strides + self.fshape[0], i * self.strides:i * self.strides + self.fshape[1], :, np.newaxis] * self.filters, axis=(1, 2, 3))

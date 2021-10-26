@@ -5,10 +5,12 @@ from nn.flatten import Flatten
 
 from nn.conv import Conv
 from nn.fullyconnected import FullyConnected
-from nn.activation import sigmoid, relu, mse, linear, cross_entropy
+from nn.activation import sigmoid, relu, mse, linear, cross_entropy, leaky_relu
 from nn.optimizer import AdamOptimizer, SGDOptimizer, MomentumSGDOptimizer
 import mnist_loader
 from matplotlib import pyplot as plt
+
+from nn.maxpooling import MaxPooling as POOL
 
 def accuracy(net, X, Y):
     a = (np.argmax(cross_entropy._softmax(net.forward(X)), axis=1) == np.argmax(Y, axis=1))
@@ -22,19 +24,24 @@ def one_hot(x, size):
 
 if __name__ == '__main__':
 
-    # 심플 MLP 예제
-    lr = 0.01
-    layers = [
-        Flatten((28, 28, 1)), # fully connected 전에 입력을 1차원으로 만들어주는 flatten() 삽입
-        FullyConnected((28*28, 100), activation=relu, optimizer = SGDOptimizer(),
-                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (28*28))),
-        FullyConnected((100, 50), activation=relu, optimizer = SGDOptimizer(),
-                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (100.))),
-        FullyConnected((50, 10), activation=linear, optimizer = SGDOptimizer(),
-                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (50.)))
-     ]
+    ###########################################################################
+    # TODO: 네트워크 초기화  (필요에 따라 내용을 수정후 레포트 작성)
+    ###########################################################################
 
-    # # 심플 CNN 예제
+
+    # # 심플 MLP 예제
+    # lr = 0.01
+    # layers = [
+    #     Flatten((28, 28, 1)), # fully connected 전에 입력을 1차원으로 만들어주는 flatten() 삽입
+    #     FullyConnected((28*28, 100), activation=relu, optimizer = AdamOptimizer(),
+    #                    weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (28*28))),
+    #     FullyConnected((100, 50), activation=relu, optimizer = AdamOptimizer(),
+    #                    weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (100.))),
+    #     FullyConnected((50, 10), activation=linear, optimizer = AdamOptimizer(),
+    #                    weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (50.)))
+    #  ]
+
+    # 심플 CNN 예제
     # lr = 0.001
     # layers = [
     #     Conv((5, 5, 1, 16), strides=1, activation=relu, optimizer=AdamOptimizer(),
@@ -51,6 +58,33 @@ if __name__ == '__main__':
     #                    optimizer = AdamOptimizer(),
     #                    weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(1.0 / (100.)))
     # ]
+
+    #He Inittialization -> Xavier함수는 비선형함수(sigmoid, tanh)에서 효과적인 결과를 보여주는데
+    #ReLU함수에서 사용 시 출력 값이 0으로 수렴하게 되는 현상을 확인할 수 있다.
+    #이런 경우 He initialization 방법을 사용할 수 있다.
+    lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))
+
+    lr = 0.001
+    #Conv(LReLU)-Conv(LReLU)-POOL-Conv(LReLU)-Conv(LReLU)-POOL-flatten-FC-FC
+    layers = [
+        Conv((3, 3, 1, 16), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))),
+        Conv((3, 3, 16, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*26*26))),
+        POOL(strides = 2)
+        Conv((3, 3, 1, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (32*12*12))),
+        Conv((3, 3, 1, 64), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (64*10*10))),
+        POOL(strides = 2),
+        Flatten((5, 5, 128)),
+        FullyConnected((5*5*128, 256), activation=leaky_relu,
+                       optimizer = AdamOptimizer(),
+                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (5*5*128))),
+        FullyConnected((256, 10), activation=linear,
+                       optimizer = AdamOptimizer(),
+                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (256.)))
+    ]
 
 
     # 네트워크 객체 생성
@@ -69,8 +103,7 @@ if __name__ == '__main__':
     # TODO: 네트워크 학습  (필요에 따라 내용을 수정후 레포트 작성)
     ###########################################################################
     loss = []
-    #total_iter = 10000 => orignal
-    total_iter = 100 #test setting
+    total_iter = 10
     batch_size = 50
 
     for iter in range(total_iter):
@@ -95,12 +128,11 @@ if __name__ == '__main__':
     test_acc = accuracy(net, tx, ty)
     print('Accuracy over all test set %.2f' % test_acc)
 
-""" 
-    #show ploting
-    plt.plot(range(total_iter), loss)
-    plt.title('Test accuracy: %.2f' % test_acc)
-    plt.ylabel('loss')
-    plt.xlabel('iteration')
-    plt.legend(['training loss'], loc='upper left')
-    plt.show()
-"""
+    # #show ploting
+    # plt.plot(range(total_iter), loss)
+    # plt.title('Test accuracy: %.2f' % test_acc)
+    # plt.ylabel('loss')
+    # plt.xlabel('iteration')
+    # plt.legend(['training loss'], loc='upper left')
+    # plt.show()
+

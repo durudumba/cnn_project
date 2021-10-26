@@ -30,7 +30,12 @@ class MomentumSGDOptimizer():
         # TODO: Implement the Momentum SGD optimizer                              #
         ###########################################################################
 
-        update_value = None
+        #update_value = None
+
+        self.v = self.beta * self.v - lr * dx
+        dx += self.v
+
+        update_value = dx
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ###########################################################################
@@ -64,10 +69,14 @@ class AdamOptimizer():
         # TODO: Implement the Adam optimizer                                      #
         ###########################################################################
 
-        #before
         #update_value = None
+        self.t += 1
+        self.m = self.beta1 * self.m + lr * dx
+        self.v = self.beta2 * self.v + (1 - self.beta2) * dx * dx
+        first_unbias = self.m / (1 - self.beta1 ** self.t)
+        second_unbias = self.v / (1 - self.beta2 ** self.t)
+        update_value = lr * first_unbias / (np.sqrt(second_unbias) + self.eps)
 
-        update_value = None
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ###########################################################################

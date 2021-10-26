@@ -16,6 +16,20 @@ class AbstractActivation(object):
 class Loss(AbstractActivation):
     pass
 
+class Leaky_Relu(AbstractActivation):
+    def compute(self, x):
+        output = x
+        output[output < 0] *= 0.01
+
+        return output
+
+    def deriv(self, x):
+        local_grad = x
+        local_grad[local_grad < 0] = 0.01
+        local_grad[local_grad > 0] = 1
+
+        return local_grad
+
 
 class Relu(AbstractActivation):
     def compute(self, x):
@@ -23,6 +37,9 @@ class Relu(AbstractActivation):
         # TODO: Implement the ReLU forward pass.                                 #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        #output = None
+        #pass
 
         output = x
         output[output < 0] = 0
@@ -39,6 +56,10 @@ class Relu(AbstractActivation):
         # TODO: Implement the ReLU backward pass.                                 #
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+
+        #local_grad = None
+        #pass
 
         local_grad = x
         local_grad[local_grad < 0] = 0
@@ -89,6 +110,7 @@ class CrossEntropy(Loss):
 relu = Relu()
 sigmoid = Sigmoid()
 linear = Linear()
+leaky_relu = Leaky_Relu()
 
 mse = MeanSquaredError()
 cross_entropy = CrossEntropy()
