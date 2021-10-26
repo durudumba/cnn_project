@@ -62,26 +62,23 @@ if __name__ == '__main__':
     #He Inittialization -> Xavier함수는 비선형함수(sigmoid, tanh)에서 효과적인 결과를 보여주는데
     #ReLU함수에서 사용 시 출력 값이 0으로 수렴하게 되는 현상을 확인할 수 있다.
     #이런 경우 He initialization 방법을 사용할 수 있다.
-    lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))
+    #lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))
 
     lr = 0.001
     #Conv(LReLU)-Conv(LReLU)-POOL-Conv(LReLU)-Conv(LReLU)-POOL-flatten-FC-FC
     layers = [
         Conv((3, 3, 1, 16), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))),
-        Conv((3, 3, 16, 32), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
+        #50 26 26 16
+        Conv((4, 4, 16, 32), strides=2, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*26*26))),
+        #50 12 12 32
         POOL(pshape = 2),
-        Conv((3, 3, 32, 64), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
-             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (32*12*12))),
-        Conv((3, 3, 64, 128), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
-             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (64*10*10))),
-        #50, 8, 8, 128
-        POOL(pshape = 2),
-        Flatten((4, 4, 128)),
-        FullyConnected((4*4*128, 256), activation=leaky_relu,
+        #50 6 6 32
+        Flatten((6, 6, 32)),
+        FullyConnected((6*6*32, 256), activation=leaky_relu,
                        optimizer = AdamOptimizer(),
-                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (5*5*128))),
+                       weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (6*6*32))),
         FullyConnected((256, 10), activation=linear,
                        optimizer = AdamOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (256.)))
@@ -104,21 +101,23 @@ if __name__ == '__main__':
     # TODO: 네트워크 학습  (필요에 따라 내용을 수정후 레포트 작성)
     ###########################################################################
     loss = []
-    total_iter = 10
+    total_iter = 5000
     batch_size = 50
-
+    import time
     for iter in range(total_iter):
+        start = time.time()
         shuffled_index = np.random.permutation(train_data_X.shape[0])
-
         batch_train_X = train_data_X[shuffled_index[:batch_size]]
         batch_train_Y = train_data_Y[shuffled_index[:batch_size]]
         net.train_step((batch_train_X, batch_train_Y))
         loss.append(np.sum(cross_entropy.compute(net.forward(batch_train_X), batch_train_Y)))
 
-        if iter % 1000 == 0 and iter > 1:
-            print('Calculate accuracy over all test set (시간 소요)')
-            print('Accuracy over all test set %f' % accuracy(net, tx, ty))
-        elif iter % 10 == 0:
+        # 학습속도 저하
+        # if iter % 1000 == 0 and iter > 1:
+        #     print('Calculate accuracy over all test set (시간 소요)')
+        #     print('Accuracy over all test set %f' % accuracy(net, tx, ty))
+        # el
+        if iter % 10 == 0:
             print('Iteration: %d, loss : %f' % (iter, loss[-1]))
 
     ###########################################################################
@@ -129,11 +128,11 @@ if __name__ == '__main__':
     test_acc = accuracy(net, tx, ty)
     print('Accuracy over all test set %.2f' % test_acc)
 
-    # #show ploting
-    # plt.plot(range(total_iter), loss)
-    # plt.title('Test accuracy: %.2f' % test_acc)
-    # plt.ylabel('loss')
-    # plt.xlabel('iteration')
-    # plt.legend(['training loss'], loc='upper left')
-    # plt.show()
+    #show ploting
+    plt.plot(range(total_iter), loss)
+    plt.title('Test accuracy: %.2f' % test_acc)
+    plt.ylabel('loss')
+    plt.xlabel('iteration')
+    plt.legend(['training loss'], loc='upper left')
+    plt.show()
 
