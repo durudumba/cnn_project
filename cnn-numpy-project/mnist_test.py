@@ -65,10 +65,17 @@ if __name__ == '__main__':
     #lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))
 
     lr = 0.001
-    #Conv(LReLU)-Conv(LReLU)-POOL-Conv(LReLU)-Conv(LReLU)-POOL-flatten-FC-FC
+    #Conv(LReLU)-Conv(LReLU)-POOL-flatten-FC-FC
     layers = [
         Conv((3, 3, 1, 16), strides=1, activation=leaky_relu, optimizer=AdamOptimizer(),
              filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (28*28))),
+<<<<<<< HEAD
+        Conv((4, 4, 16, 32), strides=2, activation=leaky_relu, optimizer=AdamOptimizer(),
+             filter_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (16*26*26))),
+        POOL(pshape = 2),
+        Flatten((6, 6, 32)),
+        FullyConnected((6*6*32, 256), activation=relu,
+=======
         #50 26 26 16
         POOL(pshape=2),
         #50 13 13 16
@@ -79,6 +86,7 @@ if __name__ == '__main__':
         #50 5 5 32
         Flatten((5, 5, 32)),
         FullyConnected((5*5*32, 256), activation=leaky_relu,
+>>>>>>> d4c3cab01279b1ba79c072cd0b35638840845c39
                        optimizer = AdamOptimizer(),
                        weight_init=lambda shp: np.random.normal(size=shp) * np.sqrt(2.0 / (5*5*32))),
         FullyConnected((256, 10), activation=linear,
@@ -103,7 +111,7 @@ if __name__ == '__main__':
     # TODO: 네트워크 학습  (필요에 따라 내용을 수정후 레포트 작성)
     ###########################################################################
     loss = []
-    total_iter = 5000
+    total_iter = 1
     batch_size = 50
 
     for iter in range(total_iter):

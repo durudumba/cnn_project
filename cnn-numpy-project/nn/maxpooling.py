@@ -28,6 +28,8 @@ class MaxPooling(AbstractLayer):
                         maxpos = [n, int(np.argmax(block) / self.pshape), (np.argmax(block) % self.pshape), c]
 
                         self.cached_data.append(maxpos)
+        print("maxpooling forward input shape",inputs.shape)
+        print("maxpooling forward output shape",outputs.shape)
 
         return (outputs, outputs)
 
@@ -47,7 +49,9 @@ class MaxPooling(AbstractLayer):
                     for w,i in zip(range(layer_err.shape[1]), self.cached_data):
                         dx[i] = layer_err[n, w, h, c]
 
-        #최대값 위치를 제외하고 0, 최대값 위치는 역전파로 정해진 값으로 채움
+        print("maxpooling backward input shape",layer_err.shape)
+        print("maxpooling backward output shape",dx.shape)
+
         return dx
 
     def get_grad(self, inputs, layer_err):
